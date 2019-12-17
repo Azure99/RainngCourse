@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.rainng.coursesystem.dao.mapper.TeacherMapper">
+    <select id="getPage" resultType="TeacherItemVO">
+        SELECT teacher_id AS 'id', teacher_number AS 'number', teacher_name AS 'name',
+        department_name AS 'departmentName'
+        FROM rc_teacher
+        JOIN rc_department on teacher_department_id = department_id
+        <where>
+            <if test="departmentName != null and departmentName != ''">
+                AND department_name LIKE CONCAT('%',#{departmentName},'%')
+            </if>
+            <if test="name != null and name != ''">
+                AND teacher_name LIKE CONCAT('%',#{name},'%')
+            </if>
+        </where>
+    </select>
+
+    <select id="count" resultType="Integer">
+        SELECT COUNT(*)
+        FROM rc_teacher
+        JOIN rc_department on teacher_department_id = department_id
+        <where>
+            <if test="departmentName != null and departmentName != ''">
+                AND department_name LIKE CONCAT('%',#{departmentName},'%')
+            </if>
+            <if test="name != null and name != ''">
+                AND teacher_name LIKE CONCAT('%',#{name},'%')
+            </if>
+        </where>
+    </select>
+
+    <select id="listTeacherTimetable" resultType="TimetableItemVO">
+        SELECT course_time     AS 'time',
+               course_name     AS 'courseName',
+               teacher_name    AS 'teacherName',
+               course_location AS 'location'
+        FROM rc_teacher
+                 JOIN rc_course on teacher_id = course_teacher_id
+        WHERE teacher_id = #{teacherId}
+    </select>
+
+    <select id="listTeacherCourse" resultType="TeacherCourseItemVO">
+        SELECT course_id             AS 'id',
+               course_name           AS 'name',
+               course_grade          AS 'grade',
+               course_credit         AS 'credit',
+               course_time           AS 'time',
+               course_location       AS 'location',
+               course_selected_count AS 'selectedCount',
+               course_exam_date      AS 'examDate'
+        FROM rc_teacher
+                 JOIN rc_course on teacher_id = course_teacher_id
+        WHERE teacher_id = #{teacherId}
+    </select>
+</mapper>

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.rainng.coursesystem.dao.mapper.ClassMapper">
+    <select id="getPage" resultType="ClassItemVO">
+        SELECT class_id AS 'id', class_name AS 'name', class_grade AS 'grade', department_name AS 'departmentName',
+        major_name AS 'majorName'
+        FROM rc_class
+        JOIN rc_major on class_major_id = major_id
+        JOIN rc_department on major_department_id = department_id
+        <where>
+            <if test="departmentName != null and departmentName != ''">
+                AND department_name LIKE CONCAT('%',#{departmentName},'%')
+            </if>
+            <if test="majorName != null and majorName != ''">
+                AND major_name LIKE CONCAT('%',#{majorName},'%')
+            </if>
+            <if test="name != null and name != ''">
+                AND class_name LIKE CONCAT('%',#{name},'%')
+            </if>
+        </where>
+    </select>
+
+    <select id="count" resultType="Integer">
+        SELECT COUNT(*)
+        FROM rc_class
+        JOIN rc_major on class_major_id = major_id
+        JOIN rc_department on major_department_id = department_id
+        <where>
+            <if test="departmentName != null and departmentName != ''">
+                AND department_name LIKE CONCAT('%',#{departmentName},'%')
+            </if>
+            <if test="majorName != null and majorName != ''">
+                AND major_name LIKE CONCAT('%',#{majorName},'%')
+            </if>
+            <if test="name != null and name != ''">
+                AND class_name LIKE CONCAT('%',#{name},'%')
+            </if>
+        </where>
+    </select>
+</mapper>

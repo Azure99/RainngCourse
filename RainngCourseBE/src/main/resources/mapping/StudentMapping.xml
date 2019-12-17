@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.rainng.coursesystem.dao.mapper.StudentMapper">
+    <select id="getPage" resultType="StudentItemVO">
+        SELECT student_id AS 'id', student_number AS 'number', student_name AS 'name',
+        class_name AS 'className', major_name AS 'majorName', student_sex AS 'sex',
+        student_last_login_time AS 'lastLoginTime'
+        FROM rc_student
+        JOIN rc_class on student_class_id = class_id
+        JOIN rc_major on class_major_id = major_id
+        <where>
+            <if test="majorName != null and majorName != ''">
+                AND major_name LIKE CONCAT('%',#{majorName},'%')
+            </if>
+            <if test="className != null and className != ''">
+                AND class_name LIKE CONCAT('%',#{className},'%')
+            </if>
+            <if test="name != null and name != ''">
+                AND student_name LIKE CONCAT('%',#{name},'%')
+            </if>
+        </where>
+    </select>
+
+    <select id="count" resultType="Integer">
+        SELECT COUNT(*)
+        FROM rc_student
+        JOIN rc_class on student_class_id = class_id
+        JOIN rc_major on class_major_id = major_id
+        <where>
+            <if test="majorName != null and majorName != ''">
+                AND major_name LIKE CONCAT('%',#{majorName},'%')
+            </if>
+            <if test="className != null and className != ''">
+                AND class_name LIKE CONCAT('%',#{className},'%')
+            </if>
+            <if test="name != null and name != ''">
+                AND student_name LIKE CONCAT('%',#{name},'%')
+            </if>
+        </where>
+    </select>
+
+    <select id="getDepartmentIdById" resultType="Integer">
+        SELECT major_department_id
+        FROM rc_student
+                 JOIN rc_class on student_class_id = class_id
+                 JOIN rc_major on class_major_id = major_id
+        WHERE student_id = #{studentId}
+    </select>
+
+    <select id="getGradeById" resultType="Integer">
+        SELECT class_grade
+        FROM rc_student
+                 JOIN rc_class on student_class_id = class_id
+        WHERE student_id = #{studentId}
+    </select>
+
+    <select id="getStudentInfoById" resultType="StudentInfoVO">
+        SELECT student_number   AS 'number',
+               student_name     AS 'name',
+               class_name       AS 'className',
+               major_name       AS 'majorName',
+               department_name  AS 'departmentName',
+               student_email    AS 'email',
+               student_birthday AS 'birthday',
+               student_sex      AS 'sex'
+        FROM rc_student
+                 JOIN rc_class on student_class_id = class_id
+                 JOIN rc_major on class_major_id = major_id
+                 JOIN rc_department on major_department_id = department_id
+        WHERE student_id = #{studentId}
+    </select>
+</mapper>

@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.rainng.coursesystem.dao.mapper.CourseMapper">
+    <select id="getPage" resultType="CourseItemBO">
+        SELECT course_id AS 'id', course_name AS 'name', teacher_name AS 'teacherName',
+        department_name AS 'departmentName', course_grade AS 'grade', course_credit AS 'credit',
+        course_time AS 'time', course_selected_count AS 'selectedCount', course_max_size AS 'maxSize'
+        FROM rc_course
+        JOIN rc_teacher on course_teacher_id = teacher_id
+        JOIN rc_department on teacher_department_id = department_id
+        <where>
+            <if test="departmentName != null and departmentName != ''">
+                AND department_name LIKE CONCAT('%',#{departmentName},'%')
+            </if>
+            <if test="teacherName != null and teacherName != ''">
+                AND teacher_name LIKE CONCAT('%',#{teacherName},'%')
+            </if>
+            <if test="name != null and name != ''">
+                AND course_name LIKE CONCAT('%',#{name},'%')
+            </if>
+        </where>
+    </select>
+
+    <select id="count" resultType="Integer">
+        SELECT COUNT(*)
+        FROM rc_course
+        JOIN rc_teacher on course_teacher_id = teacher_id
+        JOIN rc_department on teacher_department_id = department_id
+        <where>
+            <if test="departmentName != null and departmentName != ''">
+                AND department_name LIKE CONCAT('%',#{departmentName},'%')
+            </if>
+            <if test="teacherName != null and teacherName != ''">
+                AND teacher_name LIKE CONCAT('%',#{teacherName},'%')
+            </if>
+            <if test="name != null and name != ''">
+                AND course_name LIKE CONCAT('%',#{name},'%')
+            </if>
+        </where>
+    </select>
+
+    <select id="getStudentCanSelectPage" resultType="StudentCourseSelectItemBO">
+        SELECT DISTINCT course_id AS 'courseId', course_name AS 'courseName', teacher_name AS 'teacherName',
+        course_credit AS 'credit', course_time AS 'time',
+        course_selected_count AS 'selectedCount', course_max_size AS 'maxSize'
+        FROM rc_course
+        JOIN rc_teacher on course_teacher_id = teacher_id
+        WHERE teacher_department_id = #{departmentId}
+        AND course_grade = #{grade}
+        AND course_id NOT IN (
+        SELECT sc_course_id
+        FROM rc_student_course
+        WHERE sc_student_id = #{studentId}
+        )
+        <if test="courseName != null and courseName != ''">
+            AND course_name LIKE CONCAT('%',#{courseName},'%')
+        </if>
+        <if test="teacherName != null and teacherName != ''">
+            AND teacher_name LIKE CONCAT('%',#{teacherName},'%')
+        </if>
+        AND course_selected_count &lt; course_max_size
+    </select>
+
+    <select id="countStudentCanSelect" resultType="Integer">
+        SELECT COUNT(*) FROM ( SELECT DISTINCT course_id
+        FROM rc_course
+        JOIN rc_teacher on course_teacher_id = teacher_id
+        WHERE teacher_department_id = #{departmentId}
+        AND course_grade = #{grade}
+        AND course_id NOT IN (
+        SELECT sc_course_id
+        FROM rc_student_course
+        WHERE sc_student_id = #{studentId}
+        )
+        <if test="courseName != null and courseName != ''">
+            AND course_name LIKE CONCAT('%',#{courseName},'%')
+        </if>
+        <if test="teacherName != null and teacherName != ''">
+            AND teacher_name LIKE CONCAT('%',#{teacherName},'%')
+        </if>
+        AND course_selected_count &lt; course_max_size) cnt
+    </select>
+
+    <select id="getDepartmentIdById" resultType="Integer">
+        SELECT teacher_department_id
+        FROM rc_course
+                 JOIN rc_teacher on course_teacher_id = teacher_id
+        WHERE course_id = #{courseId}
+    </select>
+</mapper>
